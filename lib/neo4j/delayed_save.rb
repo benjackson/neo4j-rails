@@ -42,26 +42,28 @@ module Neo4j::DelayedSave
   alias_method :reset, :reload
 
   def save
-    if valid?
-      _run_save_callbacks do
-        if @persisted
-          _run_update_callbacks do
-            @_unsaved_props.each {|k,v| @_java_node[k] = v }
-            @_unsaved_props.clear
-          end
-        else
-          _run_create_callbacks do
-            @_java_node = Neo4j.create_node
-            @_java_node._wrapper = self
-            @_unsaved_props.each {|k,v| @_java_node[k] = v }
-            @_unsaved_props.clear
-            update_index
-            Neo4j.event_handler.node_created(self)
-            @persisted = true
-          end
+    return if invalid?
+    _run_save_callbacks do
+      return if invalid?(:save)
+      if @persisted
+        _run_update_callbacks do
+          return if invalid?(:update)
+          @_unsaved_props.each {|k,v| @_java_node[k] = v }
+          @_unsaved_props.clear
+        end
+      else
+        _run_create_callbacks do
+          return if invalid?(:create)
+          @_java_node = Neo4j.create_node
+          @_java_node._wrapper = self
+          @_unsaved_props.each {|k,v| @_java_node[k] = v }
+          @_unsaved_props.clear
+          update_index
+          Neo4j.event_handler.node_created(self)
+          @persisted = true
         end
       end
-      true
     end
+    true
   end
 end

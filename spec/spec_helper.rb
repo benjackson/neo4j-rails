@@ -9,12 +9,17 @@ Bundler.require :default, :test
 
 require 'spec'
 require 'spec/interop/test'
+require File.join(File.dirname(__FILE__), 'neo4j', 'shared_model_examples')
 
 # Since we're using spec/interop/test, we might as well add our
 # helpers to T::U::TC
 class Test::Unit::TestCase
   def self.use_transactions
     before :each do
+      txn do
+        Neo4j.all_nodes { |n| n.del if n.is_a?(Neo4j::Model) }
+      end
+      
       Neo4j::Transaction.new
     end
 
@@ -35,41 +40,5 @@ class Test::Unit::TestCase
     mod.instance_methods(false).each do |m|
       example(m, {}) {__send__ m}
     end
-  end
-
-  after :each do
-    txn { fixtures.each { |obj| obj.del rescue nil } }
-  end
-
-  def fixtures
-    @fixtures ||= []
-  end
-
-  def fixture(obj)
-    self.fixtures << obj
-    obj
-  end
-
-  def self.insert_dummy_model
-    before :each do
-      txn do
-        @model = fixture(Neo4j::Model.new)
-        @model.save
-      end
-    end
-  end
-
-  module TempModel
-    @@_counter = 1
-    def self.set(klass)
-      name = "Model_#{@@_counter}"
-      @@_counter += 1
-      const_set(name,klass)
-      klass
-    end
-  end
-
-  def model_subclass(&block)
-    TempModel.set(Class.new(Neo4j::Model, &block))
   end
 end

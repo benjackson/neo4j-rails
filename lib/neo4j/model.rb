@@ -29,14 +29,26 @@ class Neo4j::Model
 
   def attributes=(attrs)
     attrs.each do |k,v|
-      if respond_to?("#{k}=")
-        send("#{k}=", v)
-      else
-        self[k] = v
+      unless k == "_neo_id"           # ignore the _neo_id when setting attributes from a bunch of attrs from another model
+        if respond_to?("#{k}=")
+          send("#{k}=", v)
+        else
+          self[k] = v
+        end
       end
     end
   end
-
+  
+  def props
+    # allow access to props when the java object isn't there
+    persisted? ? super : @_unsaved_props
+  end
+  
+  # return the props without the internal vars
+  def attributes
+    props.reject { |k, v| k == :_classname || k == :_neo_id }
+  end
+  
   def update_attributes(attributes)
     self.attributes = attributes
     save
