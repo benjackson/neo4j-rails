@@ -3,154 +3,95 @@ require 'neo4j/model'
 
 class IceCream < Neo4j::Model
   property :flavour
+  property :required_on_create
+  property :required_on_update
+  property :created, :type => DateTime
+  
+  attr_reader :saved
+  
   index :flavour
-  validates_presence_of :flavour
-end
-
-describe Neo4j::Model, "new" do
-  before :each do
-    @model = Neo4j::Model.new
+  
+  validates :flavour, :presence => true
+  validates :required_on_create, :presence => true, :on => :create
+  validates :required_on_update, :presence => true, :on => :update
+  
+  before_create :timestamp
+  after_create :mark_saved
+  
+  protected
+  def timestamp
+    self.created = DateTime.now
   end
-  subject { @model }
-
-  it { should_not be_persisted }
-
-  it "should allow access to properties before it is saved" do
-    @model["fur"] = "none"
-    @model["fur"].should == "none"
-  end
-
-  it "should fail to save new model without a transaction" do
-    lambda { @model.save }.should raise_error
+  
+  def mark_saved
+    @saved = true
   end
 end
 
-describe Neo4j::Model, "load" do
-  before :each do
-    txn do
-      @model = fixture(Neo4j::Model.new)
-      @model.save
+describe Neo4j::Model do
+  it_should_behave_like "a new model"
+  it_should_behave_like "a loadable model"
+  it_should_behave_like "a saveable model"
+  it_should_behave_like "a creatable model"
+  it_should_behave_like "a destroyable model"
+  it_should_behave_like "an updatable model"
+end
+
+describe IceCream do
+  context "when valid" do
+    before :each do
+      subject.flavour = "vanilla"
+      subject.required_on_create = "true"
+      subject.required_on_update = "true"
     end
-  end
-
-  it "should load a previously stored node" do
-    result = Neo4j::Model.load(@model.id)
-    result.should == @model
-    result.should be_persisted
-  end
-end
-
-describe Neo4j::Model, "save" do
-  use_transactions
-  before :each do
-    @model = fixture(IceCream.new)
-    @model.flavour = "vanilla"
-  end
-
-  it "should store the model in the database" do
-    @model.save
-    @model.should be_persisted
-    IceCream.load(@model.id).should == @model
-  end
-
-  it "should not save the model if it is invalid" do
-    @model = IceCream.new
-    @model.save.should_not be_true
-    @model.should_not be_valid
-    @model.should_not be_persisted
-    @model.id.should be_nil
-  end
-end
-
-describe Neo4j::Model, "find" do
-  before :each do
-    txn do
-      @model = fixture(IceCream.new)
-      @model.flavour = "vanilla"
-      @model.save
-    end
-  end
-  use_transactions
-
-  it "should load all nodes of that type from the database" do
-    IceCream.all.should include(@model)
-  end
-
-  it "should find a model by one of its attributes" do
-    IceCream.find(:flavour => "vanilla").to_a.should include(@model)
-  end
-end
-
-describe Neo4j::Model, "lint" do
-  before :each do
-    @model = Neo4j::Model.new
-  end
-
-  include_tests ActiveModel::Lint::Tests
-end
-
-describe Neo4j::Model, "destroy" do
-  insert_dummy_model
-
-  it "should remove the model from the database" do
-    txn { @model.destroy }
-    txn { Neo4j::Model.load(@model.id).should be_nil }
-  end
-end
-
-describe Neo4j::Model, "create" do
-  use_transactions
-
-  it "should save the model and return it" do
-    model = fixture(Neo4j::Model.create)
-    model.should be_persisted
-  end
-
-  it "should accept attributes to be set" do
-    model = fixture(Neo4j::Model.create :name => "Nick")
-    model[:name].should == "Nick"
-  end
-
-  it "bang version should raise an exception if save returns false" do
-    lambda { fixture(IceCream.create!) }.should raise_error(Neo4j::Model::RecordInvalidError)
-  end
-
-  it "should run before and after create callbacks" do
-    klass = model_subclass do
-      property :created, :type => DateTime
-      before_create :timestamp
-      def timestamp
-        self.created = DateTime.now
+    
+    it_should_behave_like "a new model"
+    it_should_behave_like "a loadable model"
+    it_should_behave_like "a saveable model"
+    it_should_behave_like "a creatable model"
+    it_should_behave_like "a destroyable model"
+    it_should_behave_like "an updatable model"
+    
+    context "after being saved" do
+      before { txn { subject.save } }
+      
+      it "should find a model by one of its attributes" do
+        subject.class.find(:flavour => "vanilla").to_a.should include(subject)
       end
-      after_create :mark_saved
-      attr_reader :saved
-      def mark_saved
-        @saved = true
+      
+      context "and then made invalid" do
+        before { subject.required_on_update = nil }
+        
+        it "shouldn't be updatable" do
+          subject.update_attributes(:flavour => "fish").should_not be_true
+        end
+        
+        it "should have the same attribute values after an unsuccessful update" do
+          subject.update_attributes(:flavour => "fish")
+          subject.reload.flavour.should == "vanilla"
+        end
       end
     end
-    klass.marshal?(:created).should be_true
-    model = fixture(klass.create!)
-    model.created.should_not be_nil
-    model.saved.should_not be_nil
-  end
-end
-
-describe Neo4j::Model, "update_attributes" do
-  insert_dummy_model
-
-  it "should save the attributes" do
-    txn { @model.update_attributes(:a => 1, :b => 2).should be_true }
-    txn { @model[:a].should == 1; @model[:b].should == 2 }
-  end
-
-  it "should not update the model if it is invalid" do
-    klass = model_subclass do
-      property :name
-      validates_presence_of :name
+    
+    context "after create" do
+      before :each do
+        txn { @obj = subject.class.create!(subject.attributes) }
+      end
+      
+      it "should have run the #timestamp callback" do
+        @obj.created.should_not be_nil
+      end
+      
+      it "should have run the #mark_saved callback" do
+        @obj.saved.should_not be_nil
+      end
     end
-    model = nil
-    txn { model = fixture(klass.create!(:name => "vanilla")) }
-    txn { model.update_attributes(:name => nil).should be_false }
-    txn { model.reload.name.should == "vanilla" }
+  end
+  
+  context "when invalid" do
+    it_should_behave_like "a new model"
+    it_should_behave_like "an unsaveable model"
+    it_should_behave_like "an uncreatable model"
+    it_should_behave_like "a non-updatable model"
   end
 end
