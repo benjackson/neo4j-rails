@@ -102,17 +102,17 @@ describe Neo4j::Model, "create" do
   use_transactions
 
   it "should save the model and return it" do
-    model = Neo4j::Model.create
+    model = fixture(Neo4j::Model.create)
     model.should be_persisted
   end
 
   it "should accept attributes to be set" do
-    model = Neo4j::Model.create :name => "Nick"
+    model = fixture(Neo4j::Model.create :name => "Nick")
     model[:name].should == "Nick"
   end
 
   it "bang version should raise an exception if save returns false" do
-    lambda { IceCream.create! }.should raise_error(Neo4j::Model::RecordInvalidError)
+    lambda { fixture(IceCream.create!) }.should raise_error(Neo4j::Model::RecordInvalidError)
   end
 
   it "should run before and after create callbacks" do
@@ -129,7 +129,7 @@ describe Neo4j::Model, "create" do
       end
     end
     klass.marshal?(:created).should be_true
-    model = klass.create!
+    model = fixture(klass.create!)
     model.created.should_not be_nil
     model.saved.should_not be_nil
   end
