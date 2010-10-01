@@ -5,4 +5,5 @@ gem "neo4j", ">= 0.4.1"
 
 group :test do
   gem 'rspec'
+  gem 'rspec-core'
 end
