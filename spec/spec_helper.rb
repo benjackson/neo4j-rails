@@ -7,38 +7,30 @@ rescue LoadError
 end
 Bundler.require :default, :test
 
-require 'spec'
-require 'spec/interop/test'
-require File.join(File.dirname(__FILE__), 'neo4j', 'shared_model_examples')
+# Requires supporting ruby files with custom matchers and macros, etc,
+# in spec/support/ and its subdirectories.
+Dir["spec/support/**/*.rb"].each {|f| require f}
 
-# Since we're using spec/interop/test, we might as well add our
-# helpers to T::U::TC
-class Test::Unit::TestCase
-  def self.use_transactions
-    before :each do
-      txn do
-        Neo4j.all_nodes { |n| n.del if n.is_a?(Neo4j::Model) }
-      end
-      
-      Neo4j::Transaction.new
-    end
-
-    after :each do
-      Neo4j::Transaction.failure
-      Neo4j::Transaction.finish
-    end
+RSpec.configure do |config|
+  # == Mock Framework
+  #
+  # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
+  #
+  # config.mock_with :mocha
+  # config.mock_with :flexmock
+  # config.mock_with :rr
+  config.mock_with :rspec
+  
+  config.before(:suite, :type => :neo4j_model) do
+    #Neo4j.clear_all_nodes
   end
-
-  def txn(&block)
-    Neo4j::Transaction.run(&block)
+  
+  config.before(:each, :type => :neo4j_transaction) do
+    Neo4j::Transaction.new
   end
-
-  # HAX: including a module of test_ methods doesn't seem to get them
-  # registered, so I'm registering them manually
-  def self.include_tests(mod)
-    include mod
-    mod.instance_methods(false).each do |m|
-      example(m, {}) {__send__ m}
-    end
+  
+  config.after(:each, :type => :neo4j_transaction) do
+    Neo4j::Transaction.failure
+    Neo4j::Transaction.finish
   end
 end
