@@ -1,4 +1,4 @@
-require File.expand_path('../../spec_helper', __FILE__)
+require 'spec_helper'
 require 'neo4j/model'
 
 class IceCream < Neo4j::Model
@@ -53,7 +53,7 @@ describe IceCream do
     it_should_behave_like "an updatable model"
     
     context "after being saved" do
-      before { txn { subject.save } }
+      before { Neo4j::Transaction.run { subject.save } }
       
       it "should find a model by one of its attributes" do
         subject.class.find(:flavour => "vanilla").to_a.should include(subject)
@@ -75,7 +75,7 @@ describe IceCream do
     
     context "after create" do
       before :each do
-        txn { @obj = subject.class.create!(subject.attributes) }
+        Neo4j::Transaction.run { @obj = subject.class.create!(subject.attributes) }
       end
       
       it "should have run the #timestamp callback" do
