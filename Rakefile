@@ -5,11 +5,11 @@ require './lib/neo4j-rails/version'
 gemspec = Gem::Specification.new do |s|
   s.name = %q{neo4j-rails}
   s.version = Neo4jRails::VERSION
-  s.authors = ["Nick Sieger"]
+  s.authors = ["Nick Sieger", "Ben Jackson"]
   s.date = Date.today.to_s
   s.description = %{Adapts Neo4j for Rails 3 apps using ActiveModel}
   s.summary = %q{Neo4j adapter for Rails 3}
-  s.email = ["nick@nicksieger.com"]
+  s.email = ["ben.jackson1@gmail.com"]
   s.files = FileList["lib/**/*", "spec/**/*",
                      *%w(Gemfile neo4j-rails.gemspec History.txt LICENSE.txt Rakefile README.markdown)
                     ].select {|f| File.file?(f) }
@@ -35,7 +35,7 @@ task :release => :package do
   sh "gem push pkg/neo4j-rails-#{Neo4jRails::VERSION}.gem"
 end
 
-require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new
 
 task :default => :spec
