@@ -83,6 +83,10 @@ class Neo4j::Model
   def self.all
     super.nodes
   end
+  
+  def self.first
+    self.all.first
+  end
 
   # Handle Model.find(params[:id])
   def self.find(*args)
