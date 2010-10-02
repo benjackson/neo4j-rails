@@ -19,6 +19,10 @@ class Neo4j::Model
     end
   end
 
+  def primary_key
+    id
+  end
+  
   def persisted?
     @persisted
   end
