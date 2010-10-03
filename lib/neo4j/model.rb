@@ -72,7 +72,7 @@ class Neo4j::Model
   end
 
   def self.primary_key
-    'neo_id'
+    'id'
   end
 
   def self.load(*ids)
