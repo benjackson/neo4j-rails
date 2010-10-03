@@ -69,6 +69,8 @@ share_examples_for "a saveable model" do
       subject.attributes.should == subject.props
     end
     
+    it { should respond_to(:to_param) }
+    
     it "should respond to primary_key" do
       subject.class.should respond_to(:primary_key)
     end
