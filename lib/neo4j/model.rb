@@ -18,10 +18,6 @@ class Neo4j::Model
       super(@record.errors.full_messages.join(", "))
     end
   end
-
-  def primary_key
-    id
-  end
   
   def persisted?
     @persisted
@@ -73,6 +69,10 @@ class Neo4j::Model
     unless save
       raise RecordInvalidError.new(self)
     end
+  end
+
+  def self.primary_key
+    'neo_id'
   end
 
   def self.load(*ids)

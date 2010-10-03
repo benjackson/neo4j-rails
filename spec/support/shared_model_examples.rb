@@ -70,7 +70,7 @@ share_examples_for "a saveable model" do
     end
     
     it "should respond to primary_key" do
-      subject.should respond_to(:primary_key)
+      subject.class.should respond_to(:primary_key)
     end
   end
 end
