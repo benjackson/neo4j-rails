@@ -45,8 +45,8 @@ describe IceCreamRelationship do
       subject.required_on_update = "true"
       subject.relationship_type = "related_to"
       Neo4j::Transaction.run do
-        subject.start_node = Neo4j::Model.create
-        subject.end_node = Neo4j::Model.create
+        subject.start_node = Neo4j::Node.new
+        subject.end_node = Neo4j::Node.new
       end
     end
     
