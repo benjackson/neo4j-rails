@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.date = %q{2010-06-06}
   s.description = %q{Adapts Neo4j for Rails 3 apps using ActiveModel}
   s.email = ["nick@nicksieger.com"]
-  s.files = ["lib/neo4j-rails.rb", "lib/neo4j/delayed_save.rb", "lib/neo4j/model.rb", "lib/neo4j/rails_relationship.rb", "lib/neo4j/attributes.rb", "lib/neo4j/callbacks.rb", "lib/neo4j/node_creation.rb", "lib/neo4j/persistance_validator.rb", "lib/neo4j/relationship_creation.rb", "lib/neo4j/validations.rb", "lib/neo4j/rails.rb", "lib/neo4j/railtie.rb", "lib/neo4j/transaction_management.rb", "lib/neo4j-rails/version.rb", "spec/spec_helper.rb", "spec/neo4j/model_spec.rb", "spec/neo4k/rails_relationship_spec.rb", "support/shared_model_examples.rb", "Gemfile", "neo4j-rails.gemspec", "History.txt", "LICENSE.txt", "Rakefile", "README.markdown"]
+  s.files = ["lib/neo4j-rails.rb", "lib/neo4j/delayed_save.rb", "lib/neo4j/model.rb", "lib/neo4j/rails_relationship.rb", "lib/neo4j/attributes.rb", "lib/neo4j/callbacks.rb", "lib/neo4j/node_creation.rb", "lib/neo4j/persistance_validator.rb", "lib/neo4j/relationship_creation.rb", "lib/neo4j/validations.rb", "lib/neo4j/rails.rb", "lib/neo4j/railtie.rb", "lib/neo4j/transaction_management.rb", "lib/neo4j-rails/version.rb", "spec/spec_helper.rb", "spec/neo4j/model_spec.rb", "spec/neo4j/rails_relationship_spec.rb", "spec/support/shared_model_examples.rb", "Gemfile", "neo4j-rails.gemspec", "History.txt", "LICENSE.txt", "Rakefile", "README.markdown"]
   s.homepage = %q{http://jruby.org}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
