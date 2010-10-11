@@ -1,7 +1,9 @@
 require 'spec_helper'
 require 'neo4j/model'
+require 'neo4j/rails_relationship'
+require 'ruby-debug'
 
-class IceCream < Neo4j::Model
+class IceCreamRelationship < Neo4j::RailsRelationship
   property :flavour
   property :required_on_create
   property :required_on_update
@@ -28,27 +30,29 @@ class IceCream < Neo4j::Model
   end
 end
 
-describe Neo4j::Model do
+describe Neo4j::RailsRelationship do
   it_should_behave_like "a new model"
-  it_should_behave_like "a loadable model"
-  it_should_behave_like "a saveable model"
-  it_should_behave_like "a creatable model"
-  it_should_behave_like "a destroyable model"
-  it_should_behave_like "an updatable model"
+  it_should_behave_like "an unsaveable model"
+  it_should_behave_like "an uncreatable model"
+  it_should_behave_like "a non-updatable model"
 end
 
-describe IceCream do
+describe IceCreamRelationship do
   context "when valid" do
     before :each do
       subject.flavour = "vanilla"
       subject.required_on_create = "true"
       subject.required_on_update = "true"
+      subject.relationship_type = "related_to"
+      Neo4j::Transaction.run do
+        subject.start_node = Neo4j::Model.create
+        subject.end_node = Neo4j::Model.create
+      end
     end
     
     it_should_behave_like "a new model"
     it_should_behave_like "a loadable model"
     it_should_behave_like "a saveable model"
-    it_should_behave_like "a creatable model"
     it_should_behave_like "a destroyable model"
     it_should_behave_like "an updatable model"
     
@@ -75,7 +79,7 @@ describe IceCream do
     
     context "after create" do
       before :each do
-        Neo4j::Transaction.run { @obj = subject.class.create!(subject.attributes) }
+        Neo4j::Transaction.run { @obj = subject.class.create!(subject.attributes.merge(:start_node => subject.start_node, :end_node => subject.end_node, :type => subject.relationship_type)) }
       end
       
       it "should have run the #timestamp callback" do

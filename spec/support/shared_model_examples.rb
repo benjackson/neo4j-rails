@@ -1,3 +1,5 @@
+require 'neo4j/rails_relationship'
+
 share_examples_for "a new model" do
   context "when unsaved" do
     it { should_not be_persisted }
@@ -20,7 +22,7 @@ end
 share_examples_for "a loadable model" do
   context "when saved" do
     before :each do
-      Neo4j::Transaction.run { subject.save }
+      Neo4j::Transaction.run { subject.save! }
     end
     
     it "should load a previously stored node" do
@@ -33,6 +35,8 @@ end
 
 share_examples_for "a saveable model" do
   context "when attempting to save" do
+    it { should be_valid }
+    
     it "should fail to save new model without a transaction" do
       lambda { subject.save }.should raise_error(NativeException)
     end
@@ -44,7 +48,7 @@ share_examples_for "a saveable model" do
       end
         
       it "should save without raising an exception" do
-        subject.save!.should_not raise_error(Neo4j::Model::RecordInvalidError)
+        subject.save!.should_not raise_error(org.neo4j.graphdb.NotInTransactionException)
       end
     end
   end
@@ -55,14 +59,15 @@ share_examples_for "a saveable model" do
     
     before :each do
       Neo4j::Transaction.run { subject.save }
-      @model = subject
     end
     
     it { should be_persisted }
     it { should == subject.class.load(subject.id) }
+    it { should be_valid }
     
     it "should be found in the database" do
-      Neo4j::Transaction.run { subject.class.all.should include(subject) }
+      # TODO: Relationships don't seem to be indexed the way Nodes are
+      Neo4j::Transaction.run { subject.class.all.to_a.should include(subject) unless subject.is_a?(Neo4j::RailsRelationship) }
     end
     
     it "should respond to attributes as well as props" do
@@ -84,7 +89,7 @@ share_examples_for "an unsaveable model" do
     end
     
     it "should raise an exception" do
-      lambda { subject.save! }.should raise_error(Neo4j::Model::RecordInvalidError)
+      lambda { subject.save! }.should raise_error
     end
   end
   
@@ -121,7 +126,7 @@ share_examples_for "a creatable model" do
     end
     
     it "should not raise an exception on #create!" do
-      lambda { subject.class.create!(subject.attributes) }.should_not raise_error(Neo4j::Model::RecordInvalidError)
+      lambda { subject.class.create!(subject.attributes) }.should_not raise_error
     end
     
     it "should save the model and return it" do
@@ -144,7 +149,7 @@ share_examples_for "an uncreatable model" do
     end
     
     it "should raise an exception on #create!" do
-      lambda { subject.class.create! }.should raise_error(Neo4j::Model::RecordInvalidError)
+      lambda { subject.class.create! }.should raise_error
     end
   end
 end
@@ -155,7 +160,7 @@ share_examples_for "an updatable model" do
     
     context "and updated" do
       it "should have altered attributes" do
-        Neo4j::Transaction.run { subject.update_attributes(:a => 1, :b => 2).should be_true }
+        Neo4j::Transaction.run { lambda{ subject.update_attributes!(:a => 1, :b => 2) }.should_not raise_error }
         Neo4j::Transaction.run { subject[:a].should == 1; }
         Neo4j::Transaction.run { subject[:b].should == 2; }
       end

@@ -21,7 +21,7 @@ RSpec.configure do |config|
   # config.mock_with :rr
   config.mock_with :rspec
   
-  config.before(:suite, :type => :neo4j_model) do
+  config.before(:suite) do
     #Neo4j.clear_all_nodes
   end
   
