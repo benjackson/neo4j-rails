@@ -28,6 +28,7 @@ module Neo4j
       @_start_node = options[:start_node]
       @_end_node = options[:end_node]
       init_props(options.reject {|k,v| k == :type || k == :start_node || k == :end_node})
+      initialize_relationship if respond_to?(:initialize_relationship)
     end
     
     def init_with_rel_with_persistence(rel)
