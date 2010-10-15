@@ -63,6 +63,13 @@ describe IceCreamRelationship do
         subject.class.find(:flavour => "vanilla").to_a.should include(subject)
       end
       
+      it "should be able to modify one of its named attributes" do
+        Neo4j::Transaction.run do
+          lambda{ subject.update_attributes!(:flavour => 'horse') }.should_not raise_error
+        end
+        subject.flavour.should == 'horse'
+      end
+      
       context "and then made invalid" do
         before { subject.required_on_update = nil }
         

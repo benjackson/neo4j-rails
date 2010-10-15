@@ -96,8 +96,6 @@ module Neo4j
     end
     
     def update
-      # call the java property mixin's update method
-      super(@_unsaved_props)
       @_unsaved_props.clear
       true
     end
