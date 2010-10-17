@@ -10,6 +10,13 @@ module Neo4j
       app.config.middleware.use Neo4j::TransactionManagement
     end
 
+    initializer "neo4j.logger" do |app|
+      if app.config.neo4j.logger
+        require 'neo4j/logging'
+        Neo4j::Logging.logger = (app.config.neo4j.logger == :rails) ? Rails.logger : app.config.neo4j.logger
+      end
+    end
+    
     # Starting Neo after :load_config_initializers allows apps to
     # register migrations in config/initializers
     initializer "neo4j.start", :after => :load_config_initializers do |app|

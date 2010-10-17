@@ -1,7 +1,7 @@
 require 'neo4j'
 require 'neo4j/extensions/reindexer'
 require 'active_model'
-require 'neo4j/inheritence'
+require 'neo4j/inheritance'
 require 'neo4j/attributes'
 require 'neo4j/delayed_save'
 require 'neo4j/node_creation'
@@ -11,7 +11,7 @@ require 'neo4j/validations'
 module Neo4j
   class Model
     include NodeMixin
-    include Inheritence
+    include Inheritance
     include Attributes
     include DelayedSave
     include NodeCreation
