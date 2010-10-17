@@ -30,6 +30,9 @@ class IceCreamRelationship < Neo4j::RailsRelationship
   end
 end
 
+class ExtendedIceCreamRelationship < IceCreamRelationship
+end
+
 describe Neo4j::RailsRelationship do
   it_should_behave_like "a new model"
   it_should_behave_like "an unsaveable model"
@@ -104,5 +107,38 @@ describe IceCreamRelationship do
     it_should_behave_like "an unsaveable model"
     it_should_behave_like "an uncreatable model"
     it_should_behave_like "a non-updatable model"
+  end
+end
+
+describe "ExtendedIceCreamRelationship" do
+  context "when valid" do
+    subject do
+      Neo4j::Transaction.run do
+        @start_node = Neo4j::Node.new
+        @end_node = Neo4j::Node.new
+      end
+      ExtendedIceCreamRelationship.new(
+        :start_node => @start_node,
+        :end_node => @end_node,
+        :type => "related_to",
+        :required_on_create => "true",
+        :required_on_update => "true",
+        :flavour => "vanilla"
+      )
+    end
+    
+    it_should_behave_like "a new model"
+    it_should_behave_like "a loadable model"
+    it_should_behave_like "a saveable model"
+    it_should_behave_like "a destroyable model"
+    it_should_behave_like "an updatable model"
+    
+    context "after being saved" do
+      before { Neo4j::Transaction.run { subject.save } }
+      
+      it "should be found by one of its indexed attributes" do
+        subject.class.find(:flavour => "vanilla").to_a.should include(subject)
+      end
+    end
   end
 end

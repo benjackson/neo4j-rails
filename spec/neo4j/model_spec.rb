@@ -28,6 +28,9 @@ class IceCream < Neo4j::Model
   end
 end
 
+class ExtendedIceCream < IceCream
+end
+
 describe Neo4j::Model do
   it_should_behave_like "a new model"
   it_should_behave_like "a loadable model"
@@ -55,7 +58,7 @@ describe IceCream do
     context "after being saved" do
       before { Neo4j::Transaction.run { subject.save } }
       
-      it "should find a model by one of its attributes" do
+      it "should find a model by one of its indexed attributes" do
         subject.class.find(:flavour => "vanilla").to_a.should include(subject)
       end
       
@@ -100,5 +103,26 @@ describe IceCream do
     it_should_behave_like "an unsaveable model"
     it_should_behave_like "an uncreatable model"
     it_should_behave_like "a non-updatable model"
+  end
+end
+
+describe "ExtendedIceCream" do
+  context "when valid" do
+    subject { ExtendedIceCream.new(:flavour => "vanilla", :required_on_create => "true", :required_on_update => "true") }
+    
+    it_should_behave_like "a new model"
+    it_should_behave_like "a loadable model"
+    it_should_behave_like "a saveable model"
+    it_should_behave_like "a creatable model"
+    it_should_behave_like "a destroyable model"
+    it_should_behave_like "an updatable model"
+    
+    context "after being saved" do
+      before { Neo4j::Transaction.run { subject.save } }
+      
+      it "should be found by one of its indexed attributes" do
+        subject.class.find(:flavour => "vanilla").to_a.should include(subject)
+      end
+    end
   end
 end
