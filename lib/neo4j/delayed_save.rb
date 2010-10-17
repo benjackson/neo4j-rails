@@ -78,15 +78,6 @@ module Neo4j
       def create!(*args)
         new(*args).tap {|o| o.save! }
       end
-      
-      def inherited(subc) # :nodoc:
-        # Make subclasses of each have their own root class/indexer
-        subc.instance_eval do
-          def root_class
-            self
-          end
-        end
-      end
     end
     
     private
