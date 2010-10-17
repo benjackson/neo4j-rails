@@ -1,5 +1,5 @@
 module Neo4j
-  module Inheritence
+  module Inheritance
     extend ActiveSupport::Concern
     
     module ClassMethods
