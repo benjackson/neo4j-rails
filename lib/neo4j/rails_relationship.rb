@@ -1,5 +1,6 @@
 require 'neo4j'
 require 'active_model'
+require 'neo4j/inheritence'
 require 'neo4j/attributes'
 require 'neo4j/delayed_save'
 require 'neo4j/relationship_creation'
@@ -10,6 +11,7 @@ require 'neo4j/persistance_validator'
 module Neo4j
   class RailsRelationship
     include RelationshipMixin
+    include Inheritence
     include Attributes
     include DelayedSave
     include RelationshipCreation
