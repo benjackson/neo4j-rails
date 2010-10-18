@@ -44,7 +44,14 @@ module Neo4j
           result
         end
       end
-    
+      
+      # have to change this method because I've changed the way #all works
+      def update_index
+        all.each do |n|
+          n.update_index
+        end
+      end
+      
       def all
         super.nodes
       end
