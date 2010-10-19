@@ -35,8 +35,6 @@ end
 
 share_examples_for "a saveable model" do
   context "when attempting to save" do
-    it { should be_valid }
-    
     it "should fail to save new model without a transaction" do
       lambda { subject.save }.should raise_error(NativeException)
     end
@@ -49,6 +47,12 @@ share_examples_for "a saveable model" do
         
       it "should save without raising an exception" do
         subject.save!.should_not raise_error(org.neo4j.graphdb.NotInTransactionException)
+      end
+      
+      context "after save" do
+        before(:each) { subject.save}
+      
+        it { should be_valid }
       end
     end
   end
