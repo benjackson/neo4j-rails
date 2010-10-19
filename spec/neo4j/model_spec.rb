@@ -58,9 +58,7 @@ describe IceCream do
     context "after being saved" do
       before { Neo4j::Transaction.run { subject.save } }
       
-      it "should find a model by one of its indexed attributes" do
-        subject.class.find(:flavour => "vanilla").to_a.should include(subject)
-      end
+      it { should == subject.class.find(:flavour => "vanilla") }
       
       it "should be able to modify one of its named attributes" do
         Neo4j::Transaction.run do
@@ -120,9 +118,7 @@ describe "ExtendedIceCream" do
     context "after being saved" do
       before { Neo4j::Transaction.run { subject.save } }
       
-      it "should be found by one of its indexed attributes" do
-        subject.class.find(:flavour => "vanilla").to_a.should include(subject)
-      end
+      it { should == subject.class.find(:flavour => "vanilla") }
     end
   end
 end
