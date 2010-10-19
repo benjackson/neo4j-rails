@@ -4,6 +4,8 @@ module Neo4j
     
     module ClassMethods
       def inherited(subclass) # :nodoc:
+        super
+        
         # Make subclasses of each have their own root class/indexer
         subclass.instance_eval do
           def root_class
