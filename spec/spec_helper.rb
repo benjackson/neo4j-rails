@@ -7,6 +7,8 @@ rescue LoadError
 end
 Bundler.require :default, :test
 
+require 'fileutils'
+
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 Dir["spec/support/**/*.rb"].each {|f| require f}
@@ -22,13 +24,8 @@ RSpec.configure do |config|
   config.mock_with :rspec
   
   config.before(:suite) do
-    Neo4j::Transaction.run do
-      Neo4j.all_nodes do |n|
-        n.del unless n.neo_id == 0
-      end
-    end
-    
     Neo4j.stop
+    FileUtils.rm_r(Neo4j::Config[:storage_path])
     Neo4j.start
   end
   
