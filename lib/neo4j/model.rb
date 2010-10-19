@@ -1,5 +1,6 @@
 require 'neo4j'
 require 'neo4j/extensions/reindexer'
+require 'neo4j/lucene'
 require 'active_model'
 require 'neo4j/inheritance'
 require 'neo4j/attributes'
