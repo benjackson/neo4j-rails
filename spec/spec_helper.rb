@@ -22,7 +22,22 @@ RSpec.configure do |config|
   config.mock_with :rspec
   
   config.before(:suite) do
-    #Neo4j.clear_all_nodes
+    Neo4j::Transaction.run do
+      Neo4j.all_nodes do |n|
+        n.del unless n.neo_id == 0
+      end
+    end
+    
+    Neo4j.stop
+    Neo4j.start
+  end
+  
+  config.before(:each) do
+    Neo4j::Transaction.run do
+      Neo4j.all_nodes do |n|
+        n.del unless n.neo_id == 0 || n.neo_id == 1
+      end
+    end
   end
   
   config.before(:each, :type => :neo4j_transaction) do
