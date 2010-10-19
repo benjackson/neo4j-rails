@@ -66,7 +66,7 @@ module Neo4j
         if args.length == 1 && String === args[0] && args[0].to_i != 0
           load(*args)
         else
-          super
+          super.first
         end
       end
     end
