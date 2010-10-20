@@ -1,21 +1,10 @@
-require 'neo4j'
-require 'neo4j/extensions/reindexer'
-require 'neo4j/lucene'
-require 'active_model'
-require 'neo4j/inheritance'
-require 'neo4j/attributes'
-require 'neo4j/delayed_save'
-require 'neo4j/relationship_creation'
-require 'neo4j/callbacks'
-require 'neo4j/validations'
-require 'neo4j/persistance_validator'
-
 module Neo4j
   class RailsRelationship
     include RelationshipMixin
     include Inheritance
     include Attributes
     include DelayedSave
+    include Finders
     include RelationshipCreation
     include Validations
     include Callbacks
@@ -93,16 +82,13 @@ module Neo4j
         end
       end
       
-      def first
-        self.all.first
-      end
-    
-      # Handle Model.find(params[:id])
-      def find(*args)
-        if args.length == 1 && String === args[0] && args[0].to_i != 0
-          load(*args)
+      def all(*args)
+        if args.empty?
+          # Return all rels
+          super
         else
-          super.first
+          # find using Lucene
+          indexer.find(*args)
         end
       end
     end
