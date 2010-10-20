@@ -60,6 +60,10 @@ describe IceCream do
       
       it { should == subject.class.find(:flavour => "vanilla") }
       
+      it "should render as XML" do
+        subject.to_xml.should == "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hash>\n  <flavour>vanilla</flavour>\n  <required-on-create>true</required-on-create>\n  <required-on-update>true</required-on-update>\n  <created>yep</created>\n</hash>\n"
+      end
+      
       it "should be able to modify one of its named attributes" do
         Neo4j::Transaction.run do
           lambda{ subject.update_attributes!(:flavour => 'horse') }.should_not raise_error

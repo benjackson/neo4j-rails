@@ -1,3 +1,6 @@
+require 'active_model'
+require 'active_support/core_ext/hash/conversions'
+
 require 'neo4j'
 
 # Lucene indexing
@@ -13,7 +16,6 @@ require 'neo4j/relationship_creation'
 require 'neo4j/callbacks'
 require 'neo4j/validations'
 require 'neo4j/persistance_validator'
-
-require 'active_model'
+require 'neo4j/xml'
 
 require 'neo4j/rails'

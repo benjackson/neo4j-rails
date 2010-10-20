@@ -8,6 +8,8 @@ module Neo4j
     include NodeCreation
     include Validations
     include Callbacks
+    include XML
+    include ActiveModel::Serialization
     include ActiveModel::Conversion
     
     # Override NodeMixin#init_without_node to save the properties for

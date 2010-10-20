@@ -77,14 +77,23 @@ share_examples_for "a saveable model" do
       Neo4j::Transaction.run { subject.class.all.to_a.should include(subject) unless subject.is_a?(Neo4j::RailsRelationship) }
     end
     
-    it "should respond to attributes as well as props" do
-      subject.attributes.should == subject.props
-    end
-    
     it { should respond_to(:to_param) }
     
     it "should respond to primary_key" do
       subject.class.should respond_to(:primary_key)
+    end
+    
+    it "should render as XML" do
+      subject.to_xml.should =~ /^<\?xml version=/
+    end
+    
+    context "attributes" do
+      before(:each) do
+        @original_subject = @original_subject.attributes
+      end
+      
+      it { should_not include("_neo-id") }
+      it { should_not include("_classname") }
     end
   end
 end

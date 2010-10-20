@@ -8,6 +8,8 @@ module Neo4j
     include RelationshipCreation
     include Validations
     include Callbacks
+    include XML
+    include ActiveModel::Serialization
     include ActiveModel::Conversion
     
     validates :start_node, :presence => true, :persisted => true
