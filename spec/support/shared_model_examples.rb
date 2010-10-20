@@ -53,6 +53,9 @@ share_examples_for "a saveable model" do
         before(:each) { subject.save}
       
         it { should be_valid }
+        
+        it { should == subject.class.find(subject.id.to_s) }
+        it { should == subject.class.all.to_a[0] }
       end
     end
   end

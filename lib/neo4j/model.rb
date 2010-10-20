@@ -1,20 +1,10 @@
-require 'neo4j'
-require 'neo4j/extensions/reindexer'
-require 'neo4j/lucene'
-require 'active_model'
-require 'neo4j/inheritance'
-require 'neo4j/attributes'
-require 'neo4j/delayed_save'
-require 'neo4j/node_creation'
-require 'neo4j/callbacks'
-require 'neo4j/validations'
-
 module Neo4j
   class Model
     include NodeMixin
     include Inheritance
     include Attributes
     include DelayedSave
+    include Finders
     include NodeCreation
     include Validations
     include Callbacks
@@ -46,27 +36,20 @@ module Neo4j
         end
       end
       
+      def all(*args)
+        if args.empty?
+          # Return all nodes
+          super.nodes
+        else
+          # find using Lucene
+          indexer.find(*args)
+        end
+      end
+      
       # have to change this method because I've changed the way #all works
       def update_index
         all.each do |n|
           n.update_index
-        end
-      end
-      
-      def all
-        super.nodes
-      end
-      
-      def first
-        self.all.first
-      end
-    
-      # Handle Model.find(params[:id])
-      def find(*args)
-        if args.length == 1 && String === args[0] && args[0].to_i != 0
-          load(*args)
-        else
-          super.first
         end
       end
     end
