@@ -42,13 +42,14 @@ module Neo4j
         end
       end
       
-      def all(*args)
-        if args.empty?
+      def all(query = nil, &block)
+        if query.blank?
           # Return all nodes
-          super.nodes
+          index_node = IndexNode.instance
+          index_node.rels.outgoing(self).nodes
         else
           # find using Lucene
-          indexer.find(*args)
+          indexer.find(query, block)
         end
       end
       

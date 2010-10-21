@@ -93,6 +93,16 @@ describe IceCream do
         subject[:new_attribute].should == "newun"
       end
       
+      it "should have the new attribute after find" do
+        obj = subject.class.find(:flavour => "vanilla")
+        obj.attributes.should include(:new_attribute)
+        obj.attributes[:new_attribute].should == "newun"
+      end
+      
+      it "should respond to #all(:flavour => 'vanilla')" do
+        subject.class.all(:flavour => 'vanilla').should include(subject)
+      end
+      
       context "and then made invalid" do
         before { subject.required_on_update = nil }
         
