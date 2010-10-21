@@ -47,6 +47,7 @@ describe IceCream do
       subject.flavour = "vanilla"
       subject.required_on_create = "true"
       subject.required_on_update = "true"
+      subject[:new_attribute] = "newun"
     end
     
     it_should_behave_like "a new model"
@@ -56,13 +57,19 @@ describe IceCream do
     it_should_behave_like "a destroyable model"
     it_should_behave_like "an updatable model"
     
+    it "should have the new attribute" do
+      subject.attributes.should include(:new_attribute)
+      subject.attributes[:new_attribute].should == "newun"
+      subject[:new_attribute].should == "newun"
+    end
+    
     context "after being saved" do
       before { Neo4j::Transaction.run { subject.save } }
       
       it { should == subject.class.find(:flavour => "vanilla") }
       
       it "should render as XML" do
-        subject.to_xml.should == "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hash>\n  <flavour>vanilla</flavour>\n  <required-on-create>true</required-on-create>\n  <required-on-update>true</required-on-update>\n  <created>yep</created>\n</hash>\n"
+        subject.to_xml.should == "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hash>\n  <flavour>vanilla</flavour>\n  <required-on-create>true</required-on-create>\n  <required-on-update>true</required-on-update>\n  <created>yep</created>\n  <new-attribute>newun</new-attribute>\n</hash>\n"
       end
       
       it "should be able to modify one of its named attributes" do
@@ -78,6 +85,12 @@ describe IceCream do
       
       it "should not have the extended property" do
         subject.class.properties_info.should_not include(:extended_property)
+      end
+      
+      it "should have the new attribute" do
+        subject.attributes.should include(:new_attribute)
+        subject.attributes[:new_attribute].should == "newun"
+        subject[:new_attribute].should == "newun"
       end
       
       context "and then made invalid" do
