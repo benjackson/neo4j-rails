@@ -8,7 +8,9 @@ module Neo4j
     
     # return the props without the internal vars
     def attributes
-      @_unsaved_props.merge(props).reject { |k, v| k == "_classname" || k == "_neo_id" }
+      ret = {}
+      self.class.properties_info.each_key { |k| ret[k] = respond_to?(k) ? send(k) : self[k] }
+      ret
     end
     
     def update_attributes(attributes)

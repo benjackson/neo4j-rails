@@ -12,6 +12,10 @@ module Neo4j
     include ActiveModel::Serialization
     include ActiveModel::Conversion
     
+    # make properties inheritable but overwritable by subclasses, rather than the same across all classes
+    class_inheritable_hash :properties_info, {}
+    self.properties_info = {}
+    
     # Override NodeMixin#init_without_node to save the properties for
     # when #save is called.
     def init_without_node(props) # :nodoc:
