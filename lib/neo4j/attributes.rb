@@ -9,7 +9,12 @@ module Neo4j
     # return the props without the internal vars
     def attributes
       ret = {}
-      self.class.properties_info.each_key { |k| ret[k] = respond_to?(k) ? send(k) : self[k] }
+      self.class.properties_info.merge(@_unsaved_props).merge(props).each_key do |k|
+        sym = k.to_sym
+        unless k.to_s[0,1] == "_"
+          ret[sym] = respond_to?(sym) ? send(sym) : self[sym]
+        end
+      end
       ret
     end
     
