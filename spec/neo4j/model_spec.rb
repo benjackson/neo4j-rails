@@ -29,6 +29,7 @@ class IceCream < Neo4j::Model
 end
 
 class ExtendedIceCream < IceCream
+  property :extended_property
 end
 
 describe Neo4j::Model do
@@ -69,6 +70,14 @@ describe IceCream do
           lambda{ subject.update_attributes!(:flavour => 'horse') }.should_not raise_error
         end
         subject.flavour.should == 'horse'
+      end
+      
+      it "should have the flavour property" do
+        subject.class.properties_info.should include(:flavour)
+      end
+      
+      it "should not have the extended property" do
+        subject.class.properties_info.should_not include(:extended_property)
       end
       
       context "and then made invalid" do
